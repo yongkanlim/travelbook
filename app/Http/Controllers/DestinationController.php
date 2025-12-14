@@ -6,8 +6,23 @@ use Illuminate\Http\Request;
 use App\Models\Destination;
 class DestinationController extends Controller
 {
-   public function index() {
-    $destinations = Destination::all();
+   public function index(Request $request) {
+    // $destinations = Destination::all();
+    $query = Destination::where('available_rooms', '>', 0);
+
+    if ($request->has('search') && !empty($request->search)) {
+        $search = $request->search;
+        $query->where(function($q) use ($search) {
+            $q->where('name', 'like', "%{$search}%")
+              ->orWhere('location', 'like', "%{$search}%");
+        });
+    }
+  
+    $destinations = $query->get();
+
+        // Only get destinations with available rooms > 0 (no work with search function)
+    // $destinations = \App\Models\Destination::where('available_rooms', '>', 0)->get();
+
     return view('destinations.index', compact('destinations'));
     }
 

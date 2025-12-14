@@ -20,6 +20,7 @@
         <div class="hidden md:flex space-x-6">
             <a href="{{ route('destination') }}" class="hover:underline">Hotels & Homes</a>
             <a href="{{ route('bookings.index') }}" class="hover:underline">Your Booking</a>
+            <a href="{{ route('attractions.index') }}" class="hover:underline">Attractions</a>
         </div>
 
        <!-- AUTH BUTTONS -->

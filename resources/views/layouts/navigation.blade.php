@@ -17,6 +17,7 @@
                 Hotels & Homes
             </a>
             <a href="{{ route('bookings.index') }}" class="hover:underline text-gray-600">Your Booking</a>
+            <a href="{{ route('attractions.index') }}" class="hover:underline text-gray-600">Attractions</a>
         </div>
 
         <!-- AUTH DROPDOWN -->

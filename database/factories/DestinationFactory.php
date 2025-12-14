@@ -16,6 +16,7 @@ class DestinationFactory extends Factory
             'latitude' => $this->faker->latitude,
             'longitude' => $this->faker->longitude,
             'people' => $this->faker->randomElement([2, 3, 4]),
+            'available_rooms' => $this->faker->randomElement([5, 10, 15, 20]),
         ];
     }
 }
