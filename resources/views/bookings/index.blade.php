@@ -5,8 +5,8 @@
         <div class="absolute inset-0 bg-black/40"></div>
 
         <div class="relative max-w-6xl mx-auto pt-24 md:pt-32 px-6 text-white text-center">
-            <h1 class="text-4xl md:text-5xl font-extrabold mb-3">Your Trips</h1>
-            <p class="text-lg md:text-xl mb-6">Manage your upcoming journeys and revisit past adventures</p>
+            <h1 class="text-4xl md:text-5xl font-extrabold mb-3">Your Hotel Booking</h1>
+            <p class="text-lg md:text-xl mb-6">View and manage your booking</p>
             <a href="{{ route('destinations.index') }}"
                class="bg-blue-600 hover:bg-blue-700 transition rounded-lg py-3 px-6 font-semibold inline-block">
                Explore Destinations →

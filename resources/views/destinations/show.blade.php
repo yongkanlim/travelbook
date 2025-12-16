@@ -73,27 +73,48 @@
     </div>
 </div>
 
-<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY"></script>
+{{-- Leaflet Map --}}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    // MAP
-    function initMap() {
-        const pos = {
-            lat: parseFloat("{{ $destination->latitude }}"),
-            lng: parseFloat("{{ $destination->longitude }}")
-        };
+    let lat = parseFloat("{{ $destination->latitude }}") || 3.1390;
+    let lng = parseFloat("{{ $destination->longitude }}") || 101.6869;
 
-        const map = new google.maps.Map(document.getElementById('map'), {
-            zoom: 12,
-            center: pos
-        });
+    let map = L.map('map').setView([lat, lng], 13);
 
-        new google.maps.Marker({
-            position: pos,
-            map: map
-        });
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    L.marker([lat, lng]).addTo(map)
+        .bindPopup("{{ $destination->name }}")
+        .openPopup();
+</script>
+<style>
+    /* Ensure map stays behind navbar */
+    #map {
+        position: relative; /* or keep as is */
+        z-index: 0; /* Map container below navbar */
     }
-    initMap();
 
+    /* Leaflet tiles & controls */
+    .leaflet-pane, 
+    .leaflet-tile, 
+    .leaflet-marker-pane, 
+    .leaflet-shadow-pane, 
+    .leaflet-overlay-pane, 
+    .leaflet-popup-pane {
+        z-index: 0 !important;
+    }
+
+    /* Optional: make popups appear above map but below navbar */
+    .leaflet-popup {
+        z-index: 10 !important;
+    }
+</style>
+
+
+<script>
     // DYNAMIC MAX GUESTS
     const peopleInput = document.getElementById('peopleInput');
     const roomInput = document.getElementById('roomInput');

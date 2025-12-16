@@ -7,7 +7,7 @@
 
     <div class="relative max-w-6xl mx-auto pt-40 px-6 text-white">
         <h1 class="text-4xl font-bold mb-4">
-            Find Your Perfect Travel Destination
+            Find Your Next Stay
         </h1>
 
         <form method="GET" action="{{ route('destinations.index') }}" 

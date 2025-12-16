@@ -1,7 +1,7 @@
 <x-guest-layout>
 
 <section class="relative h-[500px] bg-cover bg-center"
-    style="background-image:url('https://wallpapers.com/images/hd/travel-background-613yzbmemikozd15.jpg')">
+    style="background-image:url('https://cdn.pixabay.com/photo/2024/05/29/00/15/green-8794928_1280.jpg')">
     <div class="absolute inset-0 bg-black/40"></div>
 
     <div class="relative max-w-6xl mx-auto pt-40 px-6 text-white">
