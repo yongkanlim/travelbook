@@ -129,26 +129,138 @@
 </div>
 
 <!-- MAP SCRIPT -->
-<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY"></script>
+<!-- Leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<!-- Leaflet Routing -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
+<script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+
 <script>
-    function initMap() {
-        const pos = {
-            lat: Number("{{ $attraction->latitude }}"),
-            lng: Number("{{ $attraction->longitude }}")
-        };
+    const attractionLat = Number("{{ $attraction->latitude }}") || 3.1390;
+    const attractionLng = Number("{{ $attraction->longitude }}") || 101.6869;
 
-        const map = new google.maps.Map(document.getElementById('map'), {
-            zoom: 12,
-            center: pos
-        });
+    // 🌙 Dark Mode Map
+    const map = L.map('map').setView([attractionLat, attractionLng], 15);
 
-        new google.maps.Marker({
-            position: pos,
-            map: map
+    L.tileLayer(
+    'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+    {
+        attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
+    }
+    ).addTo(map);
+
+    // 🎯 Attraction Marker
+    const attractionMarker = L.marker([attractionLat, attractionLng])
+        .addTo(map)
+        .bindPopup(`
+            <strong>{{ $attraction->name }}</strong><br>
+            {{ $attraction->location }}
+        `)
+        .openPopup();
+
+    // 📍 Click Map → Show Building / Place Name
+    map.on('click', async (e) => {
+        const { lat, lng } = e.latlng;
+
+        try {
+            const res = await fetch(
+                `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`
+            );
+            const data = await res.json();
+
+            const place =
+                data.name ||
+                data.address?.building ||
+                data.address?.road ||
+                data.display_name ||
+                'Unknown location';
+
+            L.popup()
+                .setLatLng(e.latlng)
+                .setContent(`<strong>${place}</strong>`)
+                .openOn(map);
+        } catch (err) {
+            console.error(err);
+        }
+    });
+
+    let poiLayer = L.layerGroup().addTo(map);
+
+    async function loadAllPOIs() {
+        poiLayer.clearLayers();
+
+        const bounds = map.getBounds();
+        const south = bounds.getSouth();
+        const west = bounds.getWest();
+        const north = bounds.getNorth();
+        const east = bounds.getEast();
+
+        const query = `
+            [out:json];
+            (
+            node["amenity"~"restaurant|cafe|marketplace|fast_food|hospital|school"](${south},${west},${north},${east});
+            node["shop"](${south},${west},${north},${east});
+            node["tourism"](${south},${west},${north},${east});
+            );
+            out;
+        `;
+
+        const url = "https://overpass-api.de/api/interpreter?data=" + encodeURIComponent(query);
+        const res = await fetch(url);
+        const data = await res.json();
+
+        data.elements.forEach(poi => {
+            if (!poi.lat || !poi.lon) return;
+
+            L.circleMarker([poi.lat, poi.lon], {
+                radius: 5,
+                color: '#2563eb',
+                fillOpacity: 0.8
+            })
+            .bindPopup(poi.tags?.name || 'Unnamed Place')
+            .addTo(poiLayer);
         });
     }
-    initMap();
 
+    // Load POIs when map moves or zooms
+    map.on('moveend', loadAllPOIs);
+
+    // Initial load
+    loadAllPOIs();
+
+    // 🧭 Directions: User → Attraction
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(position => {
+            const userLatLng = L.latLng(
+                position.coords.latitude,
+                position.coords.longitude
+            );
+
+            L.marker(userLatLng)
+                .addTo(map)
+                .bindPopup('Your Location');
+
+            L.Routing.control({
+                waypoints: [
+                    userLatLng,
+                    L.latLng(attractionLat, attractionLng)
+                ],
+                addWaypoints: false,
+                draggableWaypoints: false,
+                routeWhileDragging: false,
+                show: false,
+                lineOptions: {
+                    styles: [{ color: '#00ff88', weight: 5 }]
+                }
+            }).addTo(map);
+        });
+    }
+</script>
+
+
+<script>
     const adultPrice = Number("{{ $attraction->adult_price }}");
     const childPrice = Number("{{ $attraction->child_price }}");
     const maxAdult = Number("{{ $attraction->available_adult_tickets }}");

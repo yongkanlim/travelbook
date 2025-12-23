@@ -1,6 +1,13 @@
 <x-app-layout>
     <div class="max-w-7xl mx-auto p-6">
-        <h1 class="text-3xl font-bold mb-6">Admin - Manage Destinations</h1>
+        
+        <div class="flex justify-between items-center mb-6 pt-20">
+            <h1 class="text-3xl font-bold">Manage Destinations</h1>
+            <a href="{{ route('admin.destinations.create') }}"
+               class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">
+                + Add Destination
+            </a>
+        </div>
 
          {{-- Search form --}}
         <form method="GET" action="{{ route('admin.destinations.index') }}" class="mb-6 flex gap-3">

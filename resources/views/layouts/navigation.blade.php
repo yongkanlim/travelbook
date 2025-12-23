@@ -22,12 +22,33 @@
             @endphp
 
             <a href="{{ $destinationRoute }}"
-            class="hover:underline text-gray-600">
+            class="hover:underline {{ request()->routeIs('admin.destinations.*') || request()->routeIs('destinations.*') ? 'font-semibold text-gray-900' : 'text-gray-600' }}">
                 Hotels & Homes
             </a>
 
-            <a href="{{ route('bookings.index') }}" class="hover:underline text-gray-600">Your Booking</a>
-            <a href="{{ route('attractions.index') }}" class="hover:underline text-gray-600">Attractions</a>
+            @if(Auth::user()->role === 'admin')
+                <a href="{{ route('admin.bookings.index') }}"
+                class="hover:underline {{ request()->routeIs('admin.bookings.*') || request()->routeIs('bookings.*') ? 'font-semibold text-gray-900' : 'text-gray-600' }}">
+                    All Bookings
+                </a>
+            @else
+                <a href="{{ route('bookings.index') }}"
+                class="hover:underline text-gray-600">
+                    Your Booking
+                </a>
+            @endif
+
+            @php
+                $attractionRoute = Auth::user()->role === 'admin'
+                    ? route('admin.attractions.index')
+                    : route('attractions.index');
+            @endphp
+
+            <a href="{{ $attractionRoute }}"
+            class="hover:underline {{ request()->routeIs('admin.attractions.*') || request()->routeIs('attractions.*') ? 'font-semibold text-gray-900' : 'text-gray-600' }}">
+                Attractions
+            </a>
+
             <a href="{{ route('attractionbooking.index') }}" class="hover:underline text-gray-600">Your Ticket</a>
         </div>
 
