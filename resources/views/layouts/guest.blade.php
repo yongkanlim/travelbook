@@ -25,6 +25,8 @@
             <a href="{{ route('bookings.index') }}" class="hover:underline">Your Booking</a>
             <a href="{{ route('attractions.index') }}" class="hover:underline">Attractions</a>
             <a href="{{ route('attractionbooking.index') }}" class="hover:underline">Your Ticket</a>
+            <a href="{{ route('api.docs') }}" class="hover:underline">API</a>
+            <!-- Named route -->
         </div>
 
        <!-- AUTH BUTTONS -->
@@ -48,16 +50,19 @@
                     </x-slot>
 
                     <x-slot name="content">
+                        <!-- Go to profile -->
                         <x-dropdown-link :href="route('profile.edit')">
                             {{ __('Profile') }}
                         </x-dropdown-link>
 
+                        <!-- Call Tailwind Modal to Switch Role (Flowbite) -->
                         <x-dropdown-link href="#" 
                                     data-modal-target="switch-role-modal" 
                                     data-modal-toggle="switch-role-modal">
                         {{ __('Switch Role') }}
                         </x-dropdown-link>
 
+                        <!-- Logout Link -->
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
                             <x-dropdown-link :href="route('logout')"
@@ -68,7 +73,7 @@
                     </x-slot>
                 </x-dropdown>
 
-             <!-- Switch Role Modal (Tailwind) -->
+<!-- Switch Role Modal (Tailwind) -->
 <div id="switch-role-modal" tabindex="-1" aria-hidden="true" 
      class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
     <div class="relative p-4 w-full max-w-md max-h-full">
@@ -91,11 +96,33 @@
             <!-- Modal body -->
             <div class="py-4 space-y-4">
                 <p class="text-sm text-gray-600">
+                    <!-- --------------------------------------------------------------------------------
+                        Current role: user / admin (Display)
+                    -------------------------------------------------------------------------------------
+                    Auth::user() retrieves the currently authenticated user
+                    ->role accesses the role column in the users table 
+                    --------------------------------------------------------------------------------- -->
                     Current role: <span class="font-medium">{{ Auth::user()->role }}</span>
                 </p>
 
+                <!-- -------------------------------------------------------------------------------------------
+                    Form will call route 'switch.role' 
+                ------------------------------------------------------------------------------------------------
+                method="POST" → sends data securely
+                route('switch.role') → calls a named route ([UserController::class, 'switchRole'] in web.php)
+                [UserController::class, 'switchRole'] will call switchRole() in UserController.php
+                -------------------------------------------------------------------------------------------- -->
                 <form method="POST" action="{{ route('switch.role') }}" class="space-y-4">
+                    <!-- ------------------------------------------------------------
+                        @csrf
+                    -----------------------------------------------------------------
+                    Adds a hidden CSRF token
+                    Protects against Cross-Site Request Forgery attacks
+                    Laravel requires this for all POST, PUT, PATCH, DELETE forms 
+                    ------------------------------------------------------------- -->
                     @csrf
+                    <!-- type="password" hides input text
+                    name="code" allows backend to read $request->code -->
                     <input type="password" name="code" placeholder="Enter verification code"
                            class="w-full border px-3 py-2 rounded focus:outline-none focus:ring focus:border-yellow-400 text-gray-900 placeholder-gray-400">
                     <button type="submit" 
@@ -104,9 +131,11 @@
                     </button>
                 </form>
 
+                <!-- Error Message (red text invalid) shown when Verification code is incorrect / User is not authorized -->
                 @if(session('error'))
                     <p class="text-red-500 text-sm mt-2">{{ session('error') }}</p>
                 @endif
+                <!-- Success Message (green text success) shown when Role switching is successful -->
                 @if(session('success'))
                     <p class="text-green-500 text-sm mt-2">{{ session('success') }}</p>
                 @endif
@@ -114,8 +143,6 @@
         </div>
     </div>
 </div>
-
-
 
             @else
                 <a href="{{ route('login') }}"

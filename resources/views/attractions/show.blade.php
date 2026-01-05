@@ -45,13 +45,28 @@
                 </div>
             </div>
 
-            <!-- Booking Form -->
+            <!-- -------------------------------------------------------------------------------------------
+                    Booking Form will call route 'attraction.book'
+                ------------------------------------------------------------------------------------------------
+                method="POST" → sends data securely
+                route('attraction.book') → calls a named route ([AttractionController::class, 'book'] in web.php)
+                [AttractionController::class, 'book'] will call book() in AttractionController.php
+                Hidden input holds attraction_id - need it when store booking data in database.
+                -------------------------------------------------------------------------------------------- -->
             <form method="POST" action="{{ route('attraction.book') }}" class="mt-6 space-y-5">
+                <!-- ------------------------------------------------------------
+                        @csrf
+                    -----------------------------------------------------------------
+                    Adds a hidden CSRF token
+                    Protects against Cross-Site Request Forgery attacks
+                    Laravel requires this for all POST, PUT, PATCH, DELETE forms 
+                    ------------------------------------------------------------- -->
                 @csrf
                 <input type="hidden" name="attraction_id" value="{{ $attraction->id }}">
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
+                        <!-- min & max → ensures user cannot exceed availability. -->
                         <label class="block font-medium text-gray-700 mb-1">
                             Adult Tickets
                         </label>
@@ -74,7 +89,7 @@
                     </div>
                 </div>
 
-                <!-- Total -->
+                <!-- Total (Update with JavaScript) -->
                 <div class="bg-gray-100 p-5 rounded-xl text-center shadow-inner">
                     <p class="text-gray-600 font-medium">Total Price</p>
                     <p id="totalPrice" class="text-3xl font-extrabold text-green-600">
@@ -94,6 +109,13 @@
         <div class="space-y-6">
 
             <!-- Image Card -->
+
+            <!-- -----------------------------------------------------------------------
+                Why need if in image part
+            ----------------------------------------------------------------------------
+                Blade will always render this block, even if $attraction->image is empty
+                Result: show a broken image icon 
+            ----------------------------------------------------------------------- -->
             @if($attraction->image)
             <div class="relative rounded-3xl overflow-hidden shadow-xl h-[320px]">
 
@@ -141,7 +163,7 @@
     const attractionLat = Number("{{ $attraction->latitude }}") || 3.1390;
     const attractionLng = Number("{{ $attraction->longitude }}") || 101.6869;
 
-    // 🌙 Dark Mode Map
+    // Dark Mode Map
     const map = L.map('map').setView([attractionLat, attractionLng], 15);
 
     L.tileLayer(
@@ -151,7 +173,7 @@
     }
     ).addTo(map);
 
-    // 🎯 Attraction Marker
+    // Attraction Marker
     const attractionMarker = L.marker([attractionLat, attractionLng])
         .addTo(map)
         .bindPopup(`
@@ -160,7 +182,7 @@
         `)
         .openPopup();
 
-    // 📍 Click Map → Show Building / Place Name
+    // Click Map → Show Building / Place Name
     map.on('click', async (e) => {
         const { lat, lng } = e.latlng;
 
@@ -230,7 +252,7 @@
     // Initial load
     loadAllPOIs();
 
-    // 🧭 Directions: User → Attraction
+    // Directions: User → Attraction
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(position => {
             const userLatLng = L.latLng(

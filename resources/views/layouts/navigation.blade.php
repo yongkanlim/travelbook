@@ -1,3 +1,4 @@
+<!-- Laravel UI - Flowbite (Modal below need this CDN) -->
 <link href="https://cdn.jsdelivr.net/npm/flowbite@4.0.1/dist/flowbite.min.css" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/flowbite@4.0.1/dist/flowbite.min.js"></script>
 
@@ -11,21 +12,37 @@
 
         <!-- NAV LINKS -->
         <div class="hidden md:flex space-x-6">
+            <!-- --------------------------------------------------------------------------------------------------------
+                Go to dashboard & check route is yes, change text to active (bold & dark text)
+             ------------------------------------------------------------------------------------------------------------
+            route('dashboard') generates the dashboard URL
+            request()->routeIs('dashboard') checks “Is the current page the dashboard?”, if yes, apply active styles
+            --------------------------------------------------------------------------------------------------------- -->
             <a href="{{ route('dashboard') }}" 
                class="hover:underline {{ request()->routeIs('dashboard') ? 'font-semibold text-gray-900' : 'text-gray-600' }}">
                 Dashboard
             </a>
+
+            <!-- --------------------------------------------------------------------
+            Checks the user role & Stores the correct route in a variable 
+            If admin, go to admin.destinations.index else go to destinations.index
+            -------------------------------------------------------------------- -->
             @php
                 $destinationRoute = Auth::user()->role === 'admin'
                     ? route('admin.destinations.index')
                     : route('destinations.index');
             @endphp
 
+            <!-- --------------------------------------------------------------------------------
+            use the upper variable (destinationRoute) to set the href
+            use * in routeIs() = Highlights menu even when inside sub-pages (edit, create, show) 
+            -------------------------------------------------------------------------------- -->
             <a href="{{ $destinationRoute }}"
             class="hover:underline {{ request()->routeIs('admin.destinations.*') || request()->routeIs('destinations.*') ? 'font-semibold text-gray-900' : 'text-gray-600' }}">
                 Hotels & Homes
             </a>
 
+            <!-- If admin, go to admin.destinations.index else go to destinations.index -->
             @if(Auth::user()->role === 'admin')
                 <a href="{{ route('admin.bookings.index') }}"
                 class="hover:underline {{ request()->routeIs('admin.bookings.*') || request()->routeIs('bookings.*') ? 'font-semibold text-gray-900' : 'text-gray-600' }}">
@@ -49,7 +66,23 @@
                 Attractions
             </a>
 
-            <a href="{{ route('attractionbooking.index') }}" class="hover:underline text-gray-600">Your Ticket</a>
+            @if(Auth::user()->role === 'admin')
+                <a href="{{ route('admin.attractionbooking.index') }}"
+                class="hover:underline {{ request()->routeIs('admin.attractionbooking.*') ? 'font-semibold text-gray-900' : 'text-gray-600' }}">
+                    Manage Tickets
+                </a>
+            @else
+                <a href="{{ route('attractionbooking.index') }}"
+                class="hover:underline {{ request()->routeIs('attractionbooking.*') ? 'font-semibold text-gray-900' : 'text-gray-600' }}">
+                    Your Ticket
+                </a>
+            @endif
+
+            <a href="{{ route('api.docs') }}"
+                class="hover:underline {{ request()->routeIs('api.docs') ? 'font-semibold text-gray-900' : 'text-gray-600' }}">
+                    API
+            </a>
+
         </div>
 
         <!-- AUTH DROPDOWN -->
@@ -69,6 +102,7 @@
                         {{ __('Profile') }}
                     </x-dropdown-link>
 
+                    <!-- Call Tailwind Modal to Switch Role (Flowbite) -->
                     <x-dropdown-link href="#" 
                                     data-modal-target="switch-role-modal" 
                                     data-modal-toggle="switch-role-modal">
@@ -109,11 +143,34 @@
             <!-- Modal body -->
             <div class="py-4 space-y-4">
                 <p class="text-sm text-gray-600">
+
+                    <!-- --------------------------------------------------------------------------------
+                        Current role: user / admin (Display)
+                    -------------------------------------------------------------------------------------
+                    Auth::user() retrieves the currently authenticated user
+                    ->role accesses the role column in the users table 
+                    --------------------------------------------------------------------------------- -->
                     Current role: <span class="font-medium">{{ Auth::user()->role }}</span>
                 </p>
 
+                <!-- -------------------------------------------------------------------------------------------
+                    Form will call route 'switch.role' 
+                ------------------------------------------------------------------------------------------------
+                method="POST" → sends data securely
+                route('switch.role') → calls a named route ([UserController::class, 'switchRole'] in web.php)
+                [UserController::class, 'switchRole'] will call switchRole() in UserController.php
+                -------------------------------------------------------------------------------------------- -->
                 <form method="POST" action="{{ route('switch.role') }}" class="space-y-4">
+                    <!-- ------------------------------------------------------------
+                        @csrf
+                    -----------------------------------------------------------------
+                    Adds a hidden CSRF token
+                    Protects against Cross-Site Request Forgery attacks
+                    Laravel requires this for all POST, PUT, PATCH, DELETE forms 
+                    ------------------------------------------------------------- -->
                     @csrf
+                    <!-- type="password" hides input text
+                    name="code" allows backend to read $request->code -->
                     <input type="password" name="code" placeholder="Enter verification code"
                            class="w-full border px-3 py-2 rounded focus:outline-none focus:ring focus:border-yellow-400">
                     <button type="submit" 
@@ -122,9 +179,11 @@
                     </button>
                 </form>
 
+                <!-- Error Message (red text invalid) shown when Verification code is incorrect / User is not authorized -->
                 @if(session('error'))
                     <p class="text-red-500 text-sm mt-2">{{ session('error') }}</p>
                 @endif
+                <!-- Success Message (green text success) shown when Role switching is successful -->
                 @if(session('success'))
                     <p class="text-green-500 text-sm mt-2">{{ session('success') }}</p>
                 @endif

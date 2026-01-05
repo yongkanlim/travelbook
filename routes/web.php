@@ -13,7 +13,9 @@ use App\Http\Controllers\Admin\BookingController as AdminBookingController;
 Route::get('/', [DestinationController::class, 'index']) ->name('destination');
 
 Route::middleware('auth')->group(function () {
+// Automatically creates index, create, store, edit, update, destroy
 Route::resource('destinations', DestinationController::class);
+
 Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
 Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
 Route::get('/bookings/{booking}/edit', [BookingController::class, 'edit'])->name('bookings.edit');
@@ -76,14 +78,17 @@ Route::middleware(['auth', 'admin'])
             ->name('attractions.update');
         Route::delete('/attractions/{attraction}', [\App\Http\Controllers\Admin\AttractionController::class, 'destroy'])
             ->name('attractions.destroy');
+
+        Route::resource('attractionbooking', \App\Http\Controllers\Admin\AttractionBookingController::class);
     });
 
-
-require __DIR__.'/auth.php';
+Route::get('/api-docs', [App\Http\Controllers\Api\PageController::class, 'index'])->name('api.docs');
 
 // Route::get('/', function () {
 //     return view('welcome');
 // });
+
+require __DIR__.'/auth.php';
 
 Route::get('/dashboard', function () {
     return view('dashboard');

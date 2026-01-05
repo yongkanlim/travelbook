@@ -16,39 +16,39 @@ class BookingController extends Controller
     }
 
     public function store(Request $request)
-{
-    $request->validate([
-        'destination_id' => 'required|exists:destinations,id',
-        'travel_date' => 'required|date',
-        'travel_end_date' => 'required|date|after_or_equal:travel_date',
-        'people' => 'required|integer|min:1',
-        'room' => 'required|integer|min:1',
-    ]);
+    {
+        $request->validate([
+            'destination_id' => 'required|exists:destinations,id',
+            'travel_date' => 'required|date',
+            'travel_end_date' => 'required|date|after_or_equal:travel_date',
+            'people' => 'required|integer|min:1',
+            'room' => 'required|integer|min:1',
+        ]);
 
-    Booking::create([
-        'user_id' => Auth::user() ->id, 
-        'destination_id' => $request->destination_id,
-        'travel_date' => $request->travel_date,
-        'travel_end_date' => $request->travel_end_date, 
-        'people' => $request->people,
-        'room' => $request->room,
-    ]);
+        Booking::create([
+            'user_id' => Auth::user() ->id, 
+            'destination_id' => $request->destination_id,
+            'travel_date' => $request->travel_date,
+            'travel_end_date' => $request->travel_end_date, 
+            'people' => $request->people,
+            'room' => $request->room,
+        ]);
 
-    $destination = \App\Models\Destination::findOrFail($request->destination_id);
+        $destination = \App\Models\Destination::findOrFail($request->destination_id);
 
-    // Check if enough rooms are available
-    if ($request->room > $destination->available_rooms) {
-        return back()->with('error', 'Not enough rooms available.');
+        // Check if enough rooms are available
+        if ($request->room > $destination->available_rooms) {
+            return back()->with('error', 'Not enough rooms available.');
+        }
+
+        // Decrease available rooms
+        $destination->decrement('available_rooms', $request->room);
+
+
+        return back()->with('success', 'Booking confirmed');
     }
 
-    // Decrease available rooms
-    $destination->decrement('available_rooms', $request->room);
-
-
-    return back()->with('success', 'Booking confirmed');
-}
-
-public function edit(Booking $booking)
+    public function edit(Booking $booking)
     {
         // Ensure the booking belongs to the logged-in user
         if ($booking->user_id !== Auth::id()) {

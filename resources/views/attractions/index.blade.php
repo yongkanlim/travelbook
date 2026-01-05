@@ -1,7 +1,16 @@
+<!-- -----------------------------------------------------------------------------------------------
+    Uses a Blade layout component (Top navigation bar, Global styles) 
+    [use layout.guest.blade.php that will display navbar]
+ ----------------------------------------------------------------------------------------------- -->
 <x-guest-layout>
 
+{{-- Hero Section --}}
+<!-- ------------------------------------------------------------------------
+    Display a image & title (hero section like the upper banner of website) 
+------------------------------------------------------------------------- -->
 <section class="relative h-[500px] bg-cover bg-center"
     style="background-image:url('https://cdn.pixabay.com/photo/2024/05/29/00/15/green-8794928_1280.jpg')">
+    <!-- Dark Overlay - dark layer on top of image -->
     <div class="absolute inset-0 bg-black/40"></div>
 
     <div class="relative max-w-6xl mx-auto pt-40 px-6 text-white">
@@ -9,14 +18,27 @@
             Explore Popular Attractions
         </h1>
 
+        <!-- =================================================================================================================================
+            Search Form
+        ======================================================================================================================================
+        Method: GET → so the search query will appear in the URL.
+        Action: {{ route('attractions.index') }} → sends the search request to the index route of attractions.
+        ================================================================================================================================= -->
         <form method="GET" action="{{ route('attractions.index') }}" 
             class="bg-white rounded-lg p-4 flex gap-3 text-black">
             
+            <!-- Search Input: 70% -->
+            <!-- ------------------------------------------------------------- -->
+            <!-- Input: text field for typing the destination/location.  -->
+            <!-- value="{{ request('search') }}" keeps the previous search query in the field. -->
             <input type="text" name="search" 
                 class="border p-3 rounded flex-[7]" 
                 placeholder="Search attraction or location" 
                 value="{{ request('search') }}">
 
+            <!-- Search Button: 30% -->
+            <!-- ------------------------------------------------------------- -->
+            <!-- Button: submits the search form. -->
             <button type="submit" 
                     class="bg-blue-600 text-white rounded p-3 flex-[3]">
                 Search
@@ -29,6 +51,13 @@
     <h2 class="text-2xl font-bold mb-6">Available Attractions</h2>
 
     <div class="grid md:grid-cols-3 gap-6">
+        <!-- =================================================================================================================================
+        Use Loop to display Attraction in card (White card)
+        ======================================================================================================================================
+        $attractions passed from the controller.
+        Card Content:
+        Image, Name, location, Adult/Child Prices, Number of available tickets, "View Details" link to route('attractions.show', $a) 
+        ================================================================================================================================= -->
         @foreach ($attractions as $a)
         <div class="bg-white rounded shadow overflow-hidden">
             {{-- Image --}}
