@@ -19,6 +19,7 @@
         <div class="max-w-7xl mx-auto px-6">
 
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
+
                 @forelse ($attractionBookings as $booking)
 
                 @php
@@ -50,6 +51,7 @@
                                     d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
                             <span>
+                                <!-- Formats date nicely (e.g. 12 Jan, 2026), Uses Carbon (Laravel’s date library) -->
                                 <strong>Visit Date:</strong>
                                 {{ \Carbon\Carbon::parse($booking->visit_date)->format('d M, Y') }}
                             </span>
@@ -104,15 +106,20 @@
 
                     <!-- Actions -->
                     <div class="p-6 flex flex-col gap-3">
+                        <!-- Passes $booking->id so the controller knows which booking to edit -->
                         <a href="{{ route('attractionbooking.edit', $booking->id) }}"
                             class="w-full text-center bg-yellow-500 text-white py-3 rounded-xl font-semibold hover:bg-yellow-600 transition">
                                 Edit Booking
                             </a>
 
+                        <!-- In HTML, only forms can send POST requests, cannot do DELETE with <a> directly -->
+                            <!-- onsubmit shows a browser confirmation dialog -->
                         <form action="{{ route('attractionbooking.destroy', $booking->id) }}"
                               method="POST"
                               onsubmit="return confirm('Delete this booking?');">
+                              <!-- Laravel requires CSRF token for all POST, PUT, DELETE forms -->
                             @csrf
+                            <!-- HTML forms only support GET and POST, Laravel uses @method('DELETE') to fake a DELETE request -->
                             @method('DELETE')
                             <button
                                 class="w-full bg-red-500 text-white py-3 rounded-xl font-semibold hover:bg-red-600 transition">

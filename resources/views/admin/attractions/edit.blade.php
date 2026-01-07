@@ -2,6 +2,11 @@
     <div class="max-w-3xl mx-auto p-6 pt-32">
         <h1 class="text-3xl font-bold mb-6 text-gray-800">Edit Attraction</h1>
 
+        <!-- enctype is short for “encoding type”
+        multipart/form-data tells the browser to split the form into multiple “parts”:
+        Each text input is sent as text part.
+        Each file input is sent as binary part.
+        Here need have this because have the image file (edit) -->
         <form method="POST" action="{{ route('admin.attractions.update', $attraction) }}" 
               enctype="multipart/form-data" 
               class="bg-white p-6 rounded-lg shadow-md space-y-6">
@@ -11,6 +16,8 @@
             {{-- Name --}}
             <div>
                 <label class="block text-gray-700 font-medium mb-1">Name</label>
+                <!-- old('field') retrieves the previous value of a form input from the last request.
+                old('name') returns what the user typed for name so they don’t have to type it again. -->
                 <input type="text" name="name" value="{{ old('name', $attraction->name) }}"
                        class="w-full border px-4 py-2 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:outline-none">
                 @error('name')<p class="text-red-500 text-sm mt-1">{{ $message }}</p>@enderror

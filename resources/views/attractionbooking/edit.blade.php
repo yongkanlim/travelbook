@@ -20,6 +20,7 @@
               class="space-y-6">
 
             @csrf
+            <!-- HTML forms only support GET & POST, Laravel uses PUT for update operations -->
             @method('PUT')
 
             <!-- Attraction Info (Read-only) -->

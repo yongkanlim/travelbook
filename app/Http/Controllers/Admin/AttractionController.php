@@ -10,8 +10,14 @@ class AttractionController extends Controller
 {
     public function index(Request $request)
     {
+        // Starts a new query on the attractions table = SELECT * FROM attractions
         $query = Attraction::query();
 
+        // --------------------------------------------------------------------------------------------------------------------------------
+        // $request->has('search') → checks if the search input exists in the request (e.g., the search form inside admin.attraction.index.php).
+        // !empty($request->search) → ensures the input is not empty. / $request->search != ''
+        // $search = $request->search; → stores the search term to use in the query.
+        // ---------------------------------------------------------------------------------------------------------------------------------
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;
             $query->where('name', 'like', "%{$search}%")
@@ -19,6 +25,8 @@ class AttractionController extends Controller
         }
 
         $attractions = $query->latest()->get();
+        // ->latest() - Sorts by newest booking first
+        // ->get() - executes the query
 
         return view('admin.attractions.index', compact('attractions'));
     }
@@ -44,12 +52,24 @@ class AttractionController extends Controller
             'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
 
+        // image: required, must be an image file of allowed types (jpeg, png, jpg, gif, webp), max size 2 MB.
+
+        // ============================================================================================================================
+        // Save image file to public storage (Anyone can view image)
+        // ============================================================================================================================
+        // 1. $request->hasFile('image') = checks if an image was uploaded.
+        // 2. $request->file('image')->store('attractions', 'public') = moves the uploaded file to storage/app/public/attractions
+        // & Generates a unique filename automatically.
+        // 3. $validated['image'] = '/storage/' . $imagePath; = Prepares the public URL for the image (/storage/attractions/abc123.jpg)
+        // ============================================================================================================================ 
+
         // Handle image upload
         if ($request->hasFile('image')) {
             $imagePath = $request->file('image')->store('attractions', 'public');
             $validated['image'] = '/storage/' . $imagePath;
         }
 
+        // Saves the validated data to the attractions table.
         Attraction::create($validated);
 
         return redirect()->route('admin.attractions.index')

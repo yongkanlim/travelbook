@@ -10,14 +10,20 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\Admin\DestinationController as AdminDestinationController;
 use App\Http\Controllers\Admin\BookingController as AdminBookingController;
 
+// / - homepage
+// Uses DestinationController@index to display destinations.
+// Named route: destination → allows you to use route('destination') in Blade or controllers.
 Route::get('/', [DestinationController::class, 'index']) ->name('destination');
 
 Route::middleware('auth')->group(function () {
 // Automatically creates index, create, store, edit, update, destroy
 Route::resource('destinations', DestinationController::class);
 
+// Create
 Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
+// Display
 Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
+// Go to edit form , {booking} → route parameter (ID of the booking)
 Route::get('/bookings/{booking}/edit', [BookingController::class, 'edit'])->name('bookings.edit');
 Route::put('/bookings/{booking}', [BookingController::class, 'update'])->name('bookings.update');
 Route::delete('/bookings/{booking}', [BookingController::class, 'destroy'])->name('bookings.destroy');
@@ -40,6 +46,8 @@ Route::put('/attractionbooking/{attractionBooking}', [AttractionBookingControlle
 
 Route::post('/switch-role', [UserController::class, 'switchRole'])->name('switch.role')->middleware('auth');
 
+// Middleware: auth - user must be logged in, admin - user must be an admin.
+// All routes inside have URL prefix /admin (e.g., /admin/destinations), Name prefix admin. (e.g., admin.destinations.index).
 Route::middleware(['auth', 'admin'])
     ->prefix('admin')
     ->name('admin.')
@@ -82,12 +90,14 @@ Route::middleware(['auth', 'admin'])
         Route::resource('attractionbooking', \App\Http\Controllers\Admin\AttractionBookingController::class);
     });
 
+// Go to API display page
 Route::get('/api-docs', [App\Http\Controllers\Api\PageController::class, 'index'])->name('api.docs');
 
 // Route::get('/', function () {
 //     return view('welcome');
 // });
 
+// Below will auto create after run laravel breeze UI command
 require __DIR__.'/auth.php';
 
 Route::get('/dashboard', function () {

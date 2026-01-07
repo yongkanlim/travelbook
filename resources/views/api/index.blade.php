@@ -39,6 +39,7 @@
                                         {{ $attraction->name }}
                                     </td>
                                     <td class="px-6 py-4 text-gray-600">
+                                        <!-- if null, - will display -->
                                         {{ $attraction->location ?? '-' }}
                                     </td>
                                     <td class="px-6 py-4 text-gray-600">

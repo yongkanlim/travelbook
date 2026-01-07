@@ -14,6 +14,7 @@ class AttractionBookingController extends Controller
      */
     public function index(Request $request)
     {
+        // ->with('attraction') Allows you to safely use {{ $booking->attraction->name }}
         $query = AttractionBooking::with(['user', 'attraction']);
 
         // Search by user or attraction
@@ -26,7 +27,9 @@ class AttractionBookingController extends Controller
                 $q->where('name', 'like', "%{$search}%");
             });
         }
+        // whereHas allows filtering through Eloquent relationships (join table)
 
+        // paginate(10) - shows 10 bookings per page with pagination links in the view.
         $bookings = $query->latest()->paginate(10);
 
         return view('admin.attractionbooking.index', compact('bookings'));
